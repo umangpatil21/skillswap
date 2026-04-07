@@ -63,7 +63,7 @@ router.put('/:id', auth, async (req, res) => {
             try {
                 const axios = require('axios');
                 await axios.post(
-                    'http://localhost:5000/api/certificate/generate',
+                    'https://skillswap-ejm8.onrender.com/api/certificate/generate',
                     {
                         userId: booking.student._id,
                         skillId: booking.skill._id

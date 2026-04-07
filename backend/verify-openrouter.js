@@ -3,7 +3,7 @@
 async function verify() {
     try {
         console.log('Testing Local AI Chat Route...');
-        const response = await fetch('http://localhost:5000/api/ai/chat', {
+        const response = await fetch('https://skillswap-ejm8.onrender.com/api/ai/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
