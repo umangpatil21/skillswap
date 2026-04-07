@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // The base URL for all API requests
 // In production, this will be your hosted Render/Heroku URL
-// In development, it will fallback to localhost:5000
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// In development, it will fallback to the Render URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://skillswap-ejm8.onrender.com';
 
 const api = axios.create({
     baseURL: API_BASE_URL,

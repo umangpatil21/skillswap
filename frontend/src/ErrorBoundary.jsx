@@ -1,0 +1,83 @@
+import React from 'react';
+
+export class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    this.setState({ errorInfo });
+    console.error('ErrorBoundary caught error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: '40px',
+          backgroundColor: '#fdf2f2',
+          color: '#9b1c1c',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '32px',
+            borderRadius: '24px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            maxWidth: '600px',
+            width: '100%'
+          }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '16px' }}>
+              Oops! Something went wrong.
+            </h2>
+            <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+              The application encountered an error. Don't worry, your data is safe.
+            </p>
+            <div style={{
+              textAlign: 'left',
+              backgroundColor: '#f9fafb',
+              padding: '16px',
+              borderRadius: '12px',
+              overflow: 'auto',
+              maxHeight: '200px'
+            }}>
+              <p style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
+                {this.state.error?.toString()}
+              </p>
+              <pre style={{ fontSize: '12px', whiteSpace: 'pre-wrap', color: '#4b5563' }}>
+                {this.state.errorInfo?.componentStack}
+              </pre>
+            </div>
+            <button
+              onClick={() => window.location.href = '/'}
+              style={{
+                marginTop: '24px',
+                backgroundColor: '#111827',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                border: 'none'
+              }}
+            >
+              Go to Homepage
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}

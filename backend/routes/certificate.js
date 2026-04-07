@@ -30,6 +30,8 @@ router.post('/generate', auth, async (req, res) => {
         if (!skill) return res.status(404).json({ msg: 'Skill not found' });
         if (!user) return res.status(404).json({ msg: 'Recipient not found' });
 
+        console.log(`📜 CERTIFICATE LOG: Generating for [${user.name}] in [${skill.title}]`);
+
         // Security check: Only the recipient themselves OR the teacher of the skill can generate it
         if (req.user.id !== recipientId && skill.teacher.toString() !== req.user.id) {
             return res.status(403).json({ msg: 'Not authorized to generate certificate for this user' });

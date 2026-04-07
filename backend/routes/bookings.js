@@ -62,8 +62,10 @@ router.put('/:id', auth, async (req, res) => {
         if (status === 'completed' && booking.student && booking.skill) {
             try {
                 const axios = require('axios');
+                const baseUrl = `${req.protocol}://${req.get('host')}`;
+                
                 await axios.post(
-                    'https://skillswap-ejm8.onrender.com/api/certificate/generate',
+                    `${baseUrl}/api/certificate/generate`,
                     {
                         userId: booking.student._id,
                         skillId: booking.skill._id

@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Whiteboard from '../components/Whiteboard';
 import { useMedia } from '../context/MediaContext';
 import api, { API_BASE_URL } from '../api';
+import io from 'socket.io-client';
 
 const socket = io.connect(API_BASE_URL);
 
@@ -77,9 +78,15 @@ const VideoCall = () => {
         let source;
         let animationFrame;
 
-        const startAnalysis = () => {
+        const startAnalysis = async () => {
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Mobile Browsers require resume() on user gesture
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+
                 analyser = audioContext.createAnalyser();
                 source = audioContext.createMediaStreamSource(stream);
                 source.connect(analyser);
@@ -111,7 +118,7 @@ const VideoCall = () => {
             if (animationFrame) cancelAnimationFrame(animationFrame);
             if (audioContext) audioContext.close();
         };
-    }, [stream, isMicOn]);
+    }, [stream, isMicOn, isJoined]); // Added isJoined to re-trigger on mobile gesture
 
     // Robust cleanup on unmount
     useEffect(() => {
@@ -240,7 +247,18 @@ const VideoCall = () => {
             if (!PeerConstructor) {
                 throw new Error("SimplePeer library not loaded. Please refresh the page.");
             }
-            const peer = new PeerConstructor({ initiator: true, trickle: false, stream: stream });
+            const peer = new PeerConstructor({ 
+                initiator: true, 
+                trickle: false, 
+                stream: stream,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' },
+                    ]
+                }
+            });
 
             peer.on("signal", (data) => {
                 console.log("DEBUG: Signal generated, emitting callUser");
@@ -291,7 +309,18 @@ const VideoCall = () => {
             if (!PeerConstructor) {
                 throw new Error("SimplePeer library not loaded. Please refresh the page.");
             }
-            const peer = new PeerConstructor({ initiator: false, trickle: false, stream: stream });
+            const peer = new PeerConstructor({ 
+                initiator: false, 
+                trickle: false, 
+                stream: stream,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' },
+                    ]
+                }
+            });
 
             peer.on("signal", (data) => {
                 console.log("DEBUG: Answer signal generated, emitting answerCall");
@@ -504,7 +533,12 @@ const VideoCall = () => {
                                     >
                                         <Video size={20} /> Enable Camera & Mic
                                     </button>
-                                    <p className="text-neutral-600 text-[10px] mt-4 uppercase tracking-[0.2em] font-bold">Hardware is currently disabled for your privacy</p>
+                                    <div className="mt-8 text-center max-w-sm">
+                                        <p className="text-neutral-600 text-[10px] uppercase tracking-[0.2em] font-bold mb-2">Hardware currently disabled</p>
+                                        <p className="text-neutral-500 text-[11px] leading-relaxed">
+                                            <b>Troubleshooting PC/Mobile:</b> Ensure you are on HTTPS, no other apps are using your camera (Zoom/Teams), and permissions are granted in your browser settings.
+                                        </p>
+                                    </div>
                                 </div>
                             )}
 
